@@ -12,6 +12,9 @@
 #endif
 
 #include <boost/spirit/home/x3/char/literal_char.hpp>
+#include <boost/spirit/home/x3/char/char_set.hpp>
+#include <boost/utility/enable_if.hpp>
+
 
 namespace boost { namespace spirit { namespace x3
 {
@@ -29,11 +32,22 @@ namespace boost { namespace spirit { namespace x3
             return ((sizeof(Char) <= sizeof(char_type)) || encoding::ischar(ch_));
         }
 
-        template <typename Char>
+        template <typename Char
+          , typename enable_if<traits::is_char<Char>, int>::type = 0
+        >
         literal_char<Encoding>
         operator()(Char ch) const
         {
             return literal_char<Encoding>(ch);
+        }
+
+        template <typename String
+          , typename disable_if<traits::is_char<String>, int>::type = 0
+        >
+        char_set<Encoding>
+        operator()(String const& str) const
+        {
+            return char_set<Encoding>(str);
         }
     };
 }}}
